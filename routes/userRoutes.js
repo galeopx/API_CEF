@@ -12,6 +12,18 @@ router.get('/', async (res, req) =>{
         res.statusCode(500).json({message: "ERROR", error: err.message});
     }
 });
+//.get /:email qui récupère les détails d'un user par email
+router.get('/:email', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user); // Retourner les détails de l'utilisateur
+    } catch (err) {
+        res.status(500).json({ message: "ERROR", error: err.message });
+    }
+});
 
 //Utilisation de la méthode HTTP POST pour créer un nouvel utilisateur
 router.post('/', async(req, res) => {
@@ -30,35 +42,58 @@ router.post('/', async(req, res) => {
 });
 
 //Utilisation de la méthode HTTP PUT pour mettre à jour l'utilisateur
-router.put('/', async (req,res) => {
+router.put('/:email', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findOne({ email: req.params.email });
         if (!user) {
-            return res.status(404).json({message: "User not Found"});
+            return res.status(404).json({ message: 'User not found' });
         }
-        user.name = req.body.name || user.name; //Verifie si la veleur name existe, si elle existe pas il y aura pas de modification. Sinon il sera mi a jour
-        user.email = req.body.email || user.email; //Verifie si la valeur email existe, si elle existe pas il y aura pas de modification. sinon il sere mi a jour
-        user.password = req.body.password || user.password; //Verifie si la valeur password existe, si elle existe pas il y aura pas de modification. sinon il sera mit a jour
 
-        const updateUser = await user.save();
-        res.json(updateUser);
-    } catch (err){
-        res.status(400).json({message:err.message});
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.password = req.body.password || user.password;
+
+        const updatedUser = await user.save();
+        res.json(updatedUser); 
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 
 // utilisation de la méthode HTTP DELETE pour supprimer un utilisateur
-router.delete('/', async (req,res) =>{
-    try{
-        const user = await User.findById(req.params.id);
+router.delete('/:email', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email });
         if (!user) {
-            return res.status(404).json({message: "User not Found"});
+            return res.status(404).json({ message: 'User not found' });
         }
-        await user.remove();
-        res.json({message: 'User deleted'});
-    } catch (err){
-        res.status(500).json({ message: err.message});
+
+        await user.remove(); 
+        res.json({ message: 'User deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
+});
+// router.post pour gérer la connexion user
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user || user.password !== password) { // Authentification basique (à remplacer par un système sécurisé)
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        res.json({ message: 'Login successful', user });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+//.get /logout pour la déconnexion
+router.get('/logout', (req, res) => {
+    // Exemple simple de déconnexion
+    res.json({ message: 'Logout successful' });
 });
 
 module.exports = router;
