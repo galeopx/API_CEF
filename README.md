@@ -66,6 +66,3 @@ Ce projet consiste à développer une application web et une API privée pour la
 - `PUT /catways/:id/reservations` : Modifier une réservation
 - `DELETE /catways/:id/reservations/:idReservation` : Supprimer une réservation
 
-
-## Contributions
-Les contributions sont les bienvenues. Créez une issue ou une pull request pour proposer des modifications.
