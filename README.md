@@ -34,16 +34,11 @@ Ce projet consiste à développer une application web et une API privée pour la
 - Node.js
 - Express.js
 - MongoDB
-- Mongoose (ORM pour MongoDB)
-- JSON Web Tokens (JWT) pour l'authentification
+- Mongoose
+- JWT
 
 ### Frontend
-- React.js (ou un autre framework au choix)
-
-### Déploiement
-- Heroku / Render / AWS (selon les préférences)
-
----
+- React.js
 
 ## Routes principales de l'API
 
@@ -69,7 +64,3 @@ Ce projet consiste à développer une application web et une API privée pour la
 - `POST /catways/:id/reservations` : Créer une réservation
 - `PUT /catways/:id/reservations` : Modifier une réservation
 - `DELETE /catways/:id/reservations/:idReservation` : Supprimer une réservation
-
-
-## Contributions
-Les contributions sont les bienvenues. Créez une issue ou une pull request pour proposer des modifications.
