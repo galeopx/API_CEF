@@ -34,16 +34,12 @@ Ce projet consiste à développer une application web et une API privée pour la
 - Node.js
 - Express.js
 - MongoDB
-- Mongoose (ORM pour MongoDB)
-- JSON Web Tokens (JWT) pour l'authentification
+- Mongoose
+- JWT
 
 ### Frontend
-- React.js (ou un autre framework au choix)
-
-### Déploiement
-- Heroku / Render / AWS (selon les préférences)
-
----
+- React.js
+- Bootstrap
 
 ## Routes principales de l'API
 
