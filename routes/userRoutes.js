@@ -1,99 +1,140 @@
 const express = require('express');
-const User = require('../models/User'); // on utilise le model créé
+const User = require('../models/User');
+const bcrypt = require('bcrypt'); // Pour le hachage des mots de passe
+const jwt = require('jsonwebtoken'); // Pour créer des tokens
 
 const router = express.Router();
 
-//Utilisation de la methode HTTP GET pour réccupérer les infos du serveur
-router.get('/', async (res, req) =>{
-    try {                                       //Try et catch au cas où il y a une erreur dans la récupérations 
-        const users = await User.find(); 
-        res.json(users);
-    } catch (err){
-        res.statusCode(500).json({message: "ERROR", error: err.message});
-    }
-});
-//.get /:email qui récupère les détails d'un user par email
-router.get('/:email', async (req, res) => {
+// Route de connexion
+router.post('/login', async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.params.email });
+        const { email, password } = req.body;
+        
+        // Recherche de l'utilisateur
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
-        res.json(user); // Retourner les détails de l'utilisateur
+
+        // Vérification du mot de passe
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+        }
+
+        // Création du token JWT
+        const token = jwt.sign(
+            { userId: user._id },
+            'ton_secret', // À remplacer par une vraie clé secrète stockée dans vos variables d'environnement
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            userId: user._id,
+            message: 'Connexion réussie'
+        });
     } catch (err) {
-        res.status(500).json({ message: "ERROR", error: err.message });
+        res.status(500).json({ message: err.message });
     }
 });
 
-//Utilisation de la méthode HTTP POST pour créer un nouvel utilisateur
-router.post('/', async(req, res) => {
-    const user = new user({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-    });
-
-    try{
-        const newUser = await user.save();
-        res.status(201).json(newUser);
-    } catch (err){
-        res.status(400).json({ message: err.message});
-    }
-});
-
-//Utilisation de la méthode HTTP PUT pour mettre à jour l'utilisateur
-router.put('/:email', async (req, res) => {
+// Route de création d'un utilisateur (inscription)
+router.post('/', async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.params.email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const { name, email, password } = req.body;
+
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Cet email est déjà utilisé' });
         }
 
-        user.name = req.body.name || user.name;
-        user.email = req.body.email || user.email;
-        user.password = req.body.password || user.password;
+        // Hachage du mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const updatedUser = await user.save();
-        res.json(updatedUser); 
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        const newUser = await user.save();
+        res.status(201).json({
+            message: 'Utilisateur créé avec succès',
+            userId: newUser._id
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 });
 
-// utilisation de la méthode HTTP DELETE pour supprimer un utilisateur
-router.delete('/:email', async (req, res) => {
+// Middleware d'authentification
+const auth = (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decodedToken = jwt.verify(token, 'VOTRE_CLE_SECRETE');
+        req.userData = { userId: decodedToken.userId };
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Authentification requise' });
+    }
+};
+
+// Routes protégées (nécessitent une authentification)
+router.get('/', auth, async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+router.get('/:email', auth, async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email }).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+router.put('/:email', auth, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        await user.remove(); 
-        res.json({ message: 'User deleted' });
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.email) user.email = req.body.email;
+        if (req.body.password) {
+            user.password = await bcrypt.hash(req.body.password, 10);
+        }
+
+        const updatedUser = await user.save();
+        res.json({ message: 'Utilisateur mis à jour avec succès' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
-// router.post pour gérer la connexion user
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
 
+router.delete('/:email', auth, async (req, res) => {
     try {
-        const user = await User.findOne({ email });
-        if (!user || user.password !== password) { // Authentification basique (à remplacer par un système sécurisé)
-            return res.status(401).json({ message: 'Invalid credentials' });
+        const user = await User.findOne({ email: req.params.email });
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        res.json({ message: 'Login successful', user });
+        await User.deleteOne({ email: req.params.email });
+        res.json({ message: 'Utilisateur supprimé' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-});
-
-//.get /logout pour la déconnexion
-router.get('/logout', (req, res) => {
-    // Exemple simple de déconnexion
-    res.json({ message: 'Logout successful' });
 });
 
 module.exports = router;
