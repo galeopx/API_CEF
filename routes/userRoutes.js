@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
-            name,
+            username,
             email,
             password: hashedPassword
         });
@@ -73,7 +73,7 @@ router.post('/', async (req, res) => {
 const auth = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'VOTRE_CLE_SECRETE');
+        const decodedToken = jwt.verify(token, 'ton_secret');
         req.userData = { userId: decodedToken.userId };
         next();
     } catch (error) {
@@ -110,7 +110,7 @@ router.put('/:email', auth, async (req, res) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        if (req.body.name) user.name = req.body.name;
+        if (req.body.name) user.username = req.body.username;
         if (req.body.email) user.email = req.body.email;
         if (req.body.password) {
             user.password = await bcrypt.hash(req.body.password, 10);

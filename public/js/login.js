@@ -1,12 +1,11 @@
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Empêche la soumission traditionnelle du formulaire
     
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const errorMessage = document.getElementById('errorMessage');
 
     try {
-        const response = await fetch('/users/login', {
+        const response = await fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -16,16 +15,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         const data = await response.json();
         
-        if (response.ok) {
-            localStorage.setItem('token', data.token);
-            window.location.href = '/dashboard';
+        if (data.success) {
+            window.location.replace(data.redirectUrl);
         } else {
-            errorMessage.textContent = data.message || 'Erreur de connexion';
-            errorMessage.style.display = 'block';
+            alert(data.message); 
         }
     } catch (error) {
         console.error('Erreur:', error);
-        errorMessage.textContent = 'Erreur de connexion au serveur';
-        errorMessage.style.display = 'block';
+        alert('Erreur lors de la connexion');
     }
 });
