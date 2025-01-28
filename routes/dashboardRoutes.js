@@ -4,20 +4,34 @@ const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
     try {
+        console.log('Cookies reçus:', req.cookies);
         const token = req.cookies.token;
-        if (!token) throw new Error('Pas de token');
-        jwt.verify(token, 'ton_secret');
+        
+        if (!token) {
+            console.log('Pas de token');
+            return res.redirect('/');
+        }
+
+        const decoded = jwt.verify(token, 'ton_secret');
+        console.log('Token vérifié:', decoded);
         next();
-    } catch {
+    } catch (error) {
+        console.log('Erreur auth:', error);
         res.redirect('/');
     }
 };
 
 router.get('/', auth, (req, res) => {
-    res.render('dashboard', {
-        user: { name: 'Admin', email: 'admin@example.com' },
-        reservations: []
-    });
+    console.log('Rendu du dashboard');
+    try {
+        res.render('dashboard', {
+            user: { name: 'Admin', email: 'admin@example.com' },
+            reservations: []
+        });
+    } catch (error) {
+        console.error('Erreur rendu:', error);
+        res.status(500).send('Erreur serveur');
+    }
 });
 
 module.exports = router;
