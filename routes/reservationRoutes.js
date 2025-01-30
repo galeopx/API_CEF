@@ -4,11 +4,10 @@ const Catway = require('../models/Catway');
 
 const router = express.Router();
 
+//route pour récupérer toutes les réservations 
 router.get('/all', async (req, res) => {
-    console.log('Route GET /reservations/all appelée');
     try {
         const reservations = await Reservation.find();
-        console.log('Réservations trouvées:', reservations);
         res.json(reservations);
     } catch (err) {
         console.error('Erreur:', err);

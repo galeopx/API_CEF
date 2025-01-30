@@ -1,11 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilisateurs</title>
+    <title>USERS</title>
 </head>
 <body>
-    <h1>USERS</h1>
+    <h1>Gestion des Utilisateurs</h1>
+    
+    <button onclick="showAddModal()">Ajouter un Utilisateur</button>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nom d'utilisateur</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="usersList">
+        </tbody>
+    </table>
+
+    <div id="addModal" hidden>
+        <h2>Ajouter un utilisateur</h2>
+        <form id="addUserForm">
+            <label>Nom d'utilisateur:</label><br>
+            <input type="text" name="username" required><br>
+
+            <label>Email:</label><br>
+            <input type="email" name="email" required><br>
+
+            <label>Mot de passe:</label><br>
+            <input type="password" name="password" required minlength="6"><br>
+
+            <button type="submit">Ajouter</button>
+            <button type="button" onclick="closeAddModal()">Annuler</button>
+        </form>
+    </div>
+    <div id="editModal" hidden>
+        <h2>Modifier l'utilisateur</h2>
+        <form id="editUserForm">
+            <input type="hidden" id="editUserEmail">
+            
+            <label>Nom d'utilisateur:</label><br>
+            <input type="text" name="username"><br>
+
+            <label>Email:</label><br>
+            <input type="email" name="email"><br>
+
+            <label>Nouveau mot de passe:</label><br>
+            <input type="password" name="password" minlength="6"><br>
+
+            <button type="submit">Mettre à jour</button>
+            <button type="button" onclick="closeEditModal()">Annuler</button>
+        </form>
+    </div>
+
+    <script src="/js/users.js"></script>
 </body>
 </html>

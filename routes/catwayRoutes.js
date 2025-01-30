@@ -5,10 +5,8 @@ const router = express.Router();
 
 // Route GEt to take all catways
 router.get('/', async (req, res) => {
-  console.log('Route GET /catways appelée');
   try {
       const catways = await Catway.find();
-      console.log('Catways trouvés:', catways);
       res.json(catways);  
   } catch (err) {
       console.error('Erreur MongoDB:', err);
