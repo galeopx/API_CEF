@@ -1,11 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation</title>
+    <title>RESERVATIONS</title>
 </head>
 <body>
-    <h1>RESERVATION</h1>
+    <h1>Gestion des Réservations</h1>
+    
+    <button onclick="showAddModal()">Ajouter une Réservation</button>
+    
+    <table border="1"> <!-- pas envie de faire un css pour ça je suis un fou -->
+        <thead>
+            <tr>
+                <th>Numéro Catway</th>
+                <th>Client</th>
+                <th>Bateau</th>
+                <th>Date d'arrivée</th>
+                <th>Date de départ</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="reservationsList">
+        </tbody>
+    </table>
+
+    <!-- Modal d'ajout -->
+    <div id="addModal" hidden>
+        <h2>Nouvelle Réservation</h2>
+        <form id="addReservationForm">
+            <label>Numéro du Catway:</label><br>
+            <select name="catwayNumber" required id="catwaySelect">
+                
+            </select><br>
+
+            <label>Nom du Client:</label><br>
+            <input type="text" name="clientName" required><br>
+
+            <label>Nom du Bateau:</label><br>
+            <input type="text" name="boatName" required><br>
+
+            <label>Date d'arrivée:</label><br>
+            <input type="date" name="checkIn" required><br>
+
+            <label>Date de départ:</label><br>
+            <input type="date" name="checkOut" required><br>
+
+            <button type="submit">Ajouter</button>
+            <button type="button" onclick="closeAddModal()">Annuler</button>
+        </form>
+    </div>
+
+    <!-- Modal d'édition -->
+    <div id="editModal" hidden>
+        <h2>Modifier la Réservation</h2>
+        <form id="editReservationForm">
+            <input type="hidden" id="editReservationId">
+            <input type="hidden" id="editCatwayId">
+
+            <label>Date d'arrivée:</label><br>
+            <input type="date" name="checkIn" required><br>
+
+            <label>Date de départ:</label><br>
+            <input type="date" name="checkOut" required><br>
+
+            <button type="submit">Mettre à jour</button>
+            <button type="button" onclick="closeEditModal()">Annuler</button>
+        </form>
+    </div>
+
+    <script src="/js/reservations.js"></script>
 </body>
 </html>
