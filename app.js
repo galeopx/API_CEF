@@ -9,13 +9,13 @@ const authentification = require('./routes/authentification');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const app = express();
 
+// Déplacer les middlewares avant les routes
 app.set('view engine', 'ejs');
 app.set('views', './views'); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
 app.use(express.static('public')); 
-
 
 app.use('/', authentification);  
 app.use('/dashboard', dashboardRoutes);

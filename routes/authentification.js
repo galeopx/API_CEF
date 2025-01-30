@@ -2,43 +2,31 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Vérification simple des credentials
         if (email === 'admin@example.com' && password === 'password') {
-            // Créer un token JWT
             const token = jwt.sign(
-                { userId: 'admin' }, // pour le moment on met un ID fictif
+                { userId: 'admin' },
                 'ton_secret',
                 { expiresIn: '24h' }
             );
 
-            // Envoyer le token dans un cookie
+            // Définir le cookie
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production'
             });
 
-            return res.status(200).json({ 
-                success: true,
-                message: 'Connexion réussie',
-                redirectUrl: '/dashboard'
-            });
+            // Renvoyer un succès
+            res.status(200).json({ success: true });
+        } else {
+            res.status(401).send('Email ou mot de passe incorrect');
         }
-
-        return res.status(401).json({ 
-            success: false,
-            message: 'Identifiants incorrects'
-        });
-
     } catch (error) {
         console.error('Erreur:', error);
-        return res.status(500).json({ 
-            success: false,
-            message: 'Erreur serveur'
-        });
+        res.status(500).send('Erreur serveur');
     }
 });
 
