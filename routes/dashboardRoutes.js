@@ -8,12 +8,10 @@ const auth = (req, res, next) => {
         const token = req.cookies.token;
         
         if (!token) {
-            console.log('Pas de token');
             return res.redirect('/');
         }
 
         const decoded = jwt.verify(token, 'ton_secret');
-        console.log('Token vérifié:', decoded);
         next();
     } catch (error) {
         console.log('Erreur auth:', error);
@@ -32,6 +30,10 @@ router.get('/', auth, (req, res) => {
         console.error('Erreur rendu:', error);
         res.status(500).send('Erreur serveur');
     }
+});
+
+router.get('/catways', auth, (req, res) => {
+    res.render('catways');
 });
 
 module.exports = router;

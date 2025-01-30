@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const catwayRoutes = require('./routes/catwayRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
@@ -9,21 +10,21 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const app = express();
 
 // Déplacer les middlewares avant les routes
-app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', './views'); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());  
+app.use(cookieParser()); 
+app.use(express.static('public')); 
 
 
 // Routes ensuite
-app.use('/', authentification);  // Préfixe pour les routes d'authentification
+app.use('/', authentification);  
 app.use('/dashboard', dashboardRoutes);
-app.use('/users', userRoutes);
 app.use('/catways', catwayRoutes);
+app.use('/users', userRoutes);
 app.use('/reservations', reservationRoutes);
-app.use('/', indexRoutes);  // Routes index en dernier
+app.use('/', indexRoutes); 
 
 //gestionnaire 404
 app.use((req, res) => {
