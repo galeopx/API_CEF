@@ -1,11 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catways</title>
+    <title>Gestion des Catways</title>
 </head>
 <body>
-    <h1>Catways</h1>
+    <h1>Gestion des Catways</h1>
+    
+    <button onclick="showAddModal()">Ajouter un Catway</button>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Numéro</th>
+                <th>Type</th>
+                <th>État</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="catwaysList">
+        </tbody>
+    </table>
+
+    <!-- Modal d'ajout -->
+    <div id="addModal" hidden>
+        <h2>Ajouter un nouveau Catway</h2>
+        <form id="addCatwayForm">
+            <label>Numéro:</label><br>
+            <input type="number" name="catwayNumber" required><br>
+            
+            <label>Type:</label><br>
+            <select name="type" required>
+                <option value="short">Court</option>
+                <option value="long">Long</option>
+            </select><br>
+            
+            <label>État:</label><br>
+            <input type="text" name="catwayState" required><br>
+            
+            <button type="submit">Ajouter</button>
+            <button type="button" onclick="closeAddModal()">Annuler</button>
+        </form>
+    </div>
+
+    <!-- Modal d'édition -->
+    <div id="editModal" hidden>
+        <h2>Modifier l'état du Catway</h2>
+        <form id="editCatwayForm">
+            <input type="hidden" id="editCatwayNumber">
+            <label>État du Catway:</label><br>
+            <input type="text" name="catwayState" required><br>
+            <button type="submit">Mettre à jour</button>
+            <button type="button" onclick="closeEditModal()">Annuler</button>
+        </form>
+    </div>
+
+    <script src="/js/catways.js"></script>
 </body>
 </html>
