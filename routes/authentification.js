@@ -9,8 +9,8 @@ router.post('/login', async (req, res) => {
         if (email === 'admin@example.com' && password === 'password') {
             const token = jwt.sign(
                 { userId: 'admin' },
-                'ton_secret',
-                { expiresIn: '24h' }
+                process.env.JWT_SECRET,
+                { expiresIn: '5m' }
             );
 
             // Définir le cookie

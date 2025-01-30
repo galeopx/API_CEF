@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
 // Route de création d'un utilisateur (inscription)
 router.post('/', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { username, email, password } = req.body;
 
         // Vérifier si l'utilisateur existe déjà
         const existingUser = await User.findOne({ email });
@@ -50,9 +50,9 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Cet email est déjà utilisé' });
         }
 
-        // Hachage du mot de passe
+        // Hachage du mot de passe 
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        // 
         const user = new User({
             username,
             email,
@@ -69,48 +69,46 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Middleware d'authentification
+// Middleware d'authentification 
 const auth = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, 'ton_secret');
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         req.userData = { userId: decodedToken.userId };
         next();
     } catch (error) {
         res.status(401).json({ message: 'Authentification requise' });
     }
-};
+}; 
 
-// Routes protégées (nécessitent une authentification)
+router.get('/', async (req, res) => {  
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        console.error('Erreur dans GET /users:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Route pour obtenir tous les utilisateurs
 router.get('/', auth, async (req, res) => {
     try {
         const users = await User.find().select('-password');
         res.json(users);
     } catch (err) {
+        console.error('Erreur dans GET /users:', err);
         res.status(500).json({ message: err.message });
     }
 });
-
-router.get('/:email', auth, async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.params.email }).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
-        }
-        res.json(user);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-router.put('/:email', auth, async (req, res) => {
+router.put('/:email', async (req, res) => {  
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        if (req.body.name) user.username = req.body.username;
+        if (req.body.username) user.username = req.body.username;
         if (req.body.email) user.email = req.body.email;
         if (req.body.password) {
             user.password = await bcrypt.hash(req.body.password, 10);
@@ -119,11 +117,12 @@ router.put('/:email', auth, async (req, res) => {
         const updatedUser = await user.save();
         res.json({ message: 'Utilisateur mis à jour avec succès' });
     } catch (err) {
+        console.error('Erreur modification utilisateur:', err);
         res.status(400).json({ message: err.message });
     }
 });
 
-router.delete('/:email', auth, async (req, res) => {
+router.delete('/:email', async (req, res) => {  // Retiré auth
     try {
         const user = await User.findOne({ email: req.params.email });
         if (!user) {
@@ -133,6 +132,7 @@ router.delete('/:email', auth, async (req, res) => {
         await User.deleteOne({ email: req.params.email });
         res.json({ message: 'Utilisateur supprimé' });
     } catch (err) {
+        console.error('Erreur suppression utilisateur:', err);
         res.status(500).json({ message: err.message });
     }
 });
