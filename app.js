@@ -17,8 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); 
 app.use(express.static('public')); 
 
-
-// Routes ensuite
 app.use('/', authentification);  
 app.use('/dashboard', dashboardRoutes);
 app.use('/catways', catwayRoutes);

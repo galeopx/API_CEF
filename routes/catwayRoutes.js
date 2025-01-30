@@ -5,12 +5,15 @@ const router = express.Router();
 
 // Route GEt to take all catways
 router.get('/', async (req, res) => {
-    try {
+  console.log('Route GET /catways appelée');
+  try {
       const catways = await Catway.find();
+      console.log('Catways trouvés:', catways);
       res.json(catways);  
-    } catch (err) {
+  } catch (err) {
+      console.error('Erreur MongoDB:', err);
       res.status(500).json({ message: err.message });
-    }
+  }
 });
 // Route GET to take catway byId
 router.get('/:id', async (req, res) => {
@@ -27,19 +30,19 @@ router.get('/:id', async (req, res) => {
 
 // Route POST to create a new catway
 router.post('/', async (req, res) => {
-    const { name, description } = req.body;
-  
-    const catway = new Catway({
-      name,
-      description,
-    });
-  
-    try {
-      const savedCatway = await catway.save();
-      res.status(201).json(savedCatway);  
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
+  console.log('Données reçues:', req.body);
+  try {
+      const catway = new Catway({
+          catwayNumber: req.body.catwayNumber,
+          type: req.body.type,
+          catwayState: req.body.catwayState
+      });
+      const nouveauCatway = await catway.save();
+      res.status(201).json(nouveauCatway);
+  } catch (err) {
+      console.error('Erreur création:', err);
+      res.status(400).json({ message: err.message });
+  }
 });
 
 // Route PUT to edit description of state for catway
