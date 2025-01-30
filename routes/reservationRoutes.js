@@ -4,6 +4,18 @@ const Catway = require('../models/Catway');
 
 const router = express.Router();
 
+router.get('/all', async (req, res) => {
+    console.log('Route GET /reservations/all appelée');
+    try {
+        const reservations = await Reservation.find();
+        console.log('Réservations trouvées:', reservations);
+        res.json(reservations);
+    } catch (err) {
+        console.error('Erreur:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET lister toutes les réservations pour un catway 
 router.get('/:id/reservations', async (req, res) => {
     try {

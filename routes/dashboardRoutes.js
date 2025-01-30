@@ -31,9 +31,12 @@ router.get('/', auth, (req, res) => {
         res.status(500).send('Erreur serveur');
     }
 });
-
+// Connecion à la page catway
 router.get('/catways', auth, (req, res) => {
     res.render('catways');
 });
-
+//connexion à la page reservation
+router.get('/reservations', auth, (req, res) => {
+    res.render('reservations');
+});
 module.exports = router;
