@@ -1,33 +1,46 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        if (email === 'admin@example.com' && password === 'password') {
-            const token = jwt.sign(
-                { userId: 'admin' },
-                process.env.JWT_SECRET,
-                { expiresIn: '5m' }
-            );
-
-            // Définir le cookie
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production'
-            });
-
-            // Renvoyer un succès
-            res.status(200).json({ success: true });
-        } else {
-            res.status(401).send('Email ou mot de passe incorrect');
+        // Vérifier si l'utilisateur existe dans la base de données
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
+
+        // Vérifier le mot de passe hashé
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
+        }
+
+        // Générer un token JWT
+        const token = jwt.sign(
+            { userId: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '5m' } // Expiration du token
+        );
+
+        // Définir le cookie avec le token JWT
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+        // Renvoyer une réponse de succès avec le token
+        res.status(200).json({ success: true, token, userId: user._id });
+
     } catch (error) {
         console.error('Erreur:', error);
-        res.status(500).send('Erreur serveur');
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
+
 
 module.exports = router;

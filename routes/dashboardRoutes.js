@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
     try {
         const token = req.cookies.token;
         
@@ -11,6 +12,13 @@ const auth = (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId); // Récupérer l'utilisateur depuis MongoDB
+
+        if (!user) {
+            return res.redirect('/');
+        }
+
+        req.user = user;
         next();
     } catch (error) {
         console.log('Erreur auth:', error);
@@ -21,7 +29,7 @@ const auth = (req, res, next) => {
 router.get('/', auth, (req, res) => {
     try {
         res.render('dashboard', {
-            user: { name: 'Admin', email: 'admin@example.com' },
+            user: { name: req.user.name, email: req.user.email },
             reservations: []
         });
     } catch (error) {
@@ -29,6 +37,12 @@ router.get('/', auth, (req, res) => {
         res.status(500).send('Erreur serveur');
     }
 });
+// Creation d'une route pour se déconnecter
+router.get('/logout', (req, res) => {
+    res.clearCookie('token'); // Supprime le cookie du token
+    res.redirect('/'); // Redirige vers la page d'accueil ou de connexion
+});
+
 // Connecion à la page catway
 router.get('/catways', auth, (req, res) => {
     res.render('catways');
