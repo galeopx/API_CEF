@@ -29,7 +29,7 @@ const auth = async (req, res, next) => {
 router.get('/', auth, (req, res) => {
     try {
         res.render('dashboard', {
-            user: { name: req.user.name, email: req.user.email },
+            user: { name: req.user.username, email: req.user.email },
             reservations: []
         });
     } catch (error) {
@@ -43,7 +43,7 @@ router.get('/logout', (req, res) => {
     res.redirect('/'); // Redirige vers la page d'accueil ou de connexion
 });
 
-// Connecion à la page catway
+// Connexion à la page catway
 router.get('/catways', auth, (req, res) => {
     res.render('catways');
 });
@@ -54,5 +54,9 @@ router.get('/reservations', auth, (req, res) => {
 //connexion à la page users
 router.get('/users', auth, (req, res) => {
     res.render('users');
+});
+//accès à la documentation lorsque connecté au dashboard
+router.get('/documentation', auth, (req, res) => {
+    res.render('documentation');
 });
 module.exports = router;
