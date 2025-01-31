@@ -38,7 +38,8 @@ Ce projet consiste à développer une application web et une API privée pour la
 - JWT
 
 ### Frontend
-- React.js
+- Node.js / .ejs
+- - bootstrap
 
 ## Routes principales de l'API
 
