@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const bcrypt = require('bcrypt'); // Pour le hachage des mots de passe
+const bcrypt = require('bcryptjs') // Pour le hachage des mots de passe
 const jwt = require('jsonwebtoken'); // Pour créer des tokens
 
 const router = express.Router();
